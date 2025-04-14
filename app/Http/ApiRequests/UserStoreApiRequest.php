@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\ApiRequests;
 
 use App\RestAPI\Requests\ApiFormRequest;
-use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUserRequest extends ApiFormRequest
+class UserStoreApiRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
