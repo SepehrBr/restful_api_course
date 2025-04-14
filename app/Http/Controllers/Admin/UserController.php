@@ -26,9 +26,7 @@ class UserController extends Controller
     {
         $users = User::query()->paginate();
 
-        return response()->json([
-            'users' => UsersListApiResource::collection($users)
-        ]);
+        return $this->apiResponse(message: null, data: UsersListApiResource::collection($users));
     }
 
     /**
@@ -56,19 +54,11 @@ class UserController extends Controller
 
             $user = User::create($data);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User Created successfully!',
-                'data' => $user
-            ], 201);
+            return $this->apiResponse(message: 'User Created successfully!', data: $user, status: 201);
         } catch (Throwable $th) {
             app()[ExceptionHandler::class]->report($th);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while updating the user.',
-                'error' => $th->getMessage()
-            ], 500);
+            return $this->apiResponse(false,'An error occurred while creating the user.', appends: [ 'error' => $th->getMessage() ], status: 500);
         }
     }
 
@@ -77,9 +67,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json([
-            'user' => new UserDetailsApiResource($user)
-        ]);
+        return $this->apiResponse(message: null, data: new UserDetailsApiResource($user));
     }
 
     /**
@@ -110,19 +98,11 @@ class UserController extends Controller
 
             $user->update($data);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User Updated successfully!',
-                'data' => $user
-            ], 201);
+            return $this->apiResponse(message: 'User Updated successfully!', data:$user, status: 201);
         } catch (Throwable $th) {
             app()[ExceptionHandler::class]->report($th);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while updating the user.',
-                'error' => $th->getMessage()
-            ], 500);
+            return $this->apiResponse(false,'An error occurred while updating the user.', appends: [ 'error' => $th->getMessage() ], status: 500);
         }
     }
 
@@ -134,19 +114,23 @@ class UserController extends Controller
         try {
             $user->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User Deleted successfully!',
-                'data' => $user
-            ], 201);
+            return $this->apiResponse(message: 'User Deleted successfully!', data: $user, status: 201);
         } catch (Throwable $th) {
             app()[ExceptionHandler::class]->report($th);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting the user.',
-                'error' => $th->getMessage()
-            ], 500);
+            return $this->apiResponse(false,'An error occurred while deleting the user.', appends: [ 'error' => $th->getMessage() ], status: 500);
         }
+    }
+
+    private function apiResponse(bool $success = true, ?string $message = null, mixed $data = null, array $appends = [], int $status = 200)
+    {
+        $body = [];
+
+        ! is_null($success) && $body['success'] = $success;
+        ! is_null($message) && $body['message'] = $message;
+        ! is_null($data) && $body['data'] = $data;
+        $body += $appends;
+
+        return response()->json($body, $status);
     }
 }
