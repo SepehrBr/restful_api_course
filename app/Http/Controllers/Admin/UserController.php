@@ -35,23 +35,10 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:5', 'confirmed'],
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         // send data to UserService to register new user
-        $data = $this->userService->registerUser($validator->validated());
+        $data = $this->userService->registerUser($request->validated());
 
         // return error message
         if (! $data->ok)
@@ -72,24 +59,10 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'last_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => [ 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:5', 'confirmed'],
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'data' => $request->all(),
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         // use UserService to update user
-        $data = $this->userService->updateUser($validator->validated(), $user);
+        $data = $this->userService->updateUser($request->validated(), $user);
 
         // return error messages if sth goes wrong as json
         if (! $data->ok)
