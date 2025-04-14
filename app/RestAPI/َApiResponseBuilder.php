@@ -59,11 +59,9 @@ class َApiResponseBuilder
     }
 
     /**
-    * Chained method for setting appends array in the API response.
-     * @param array $appends
-     * @return static
+     * @param string|array $appends
      */
-    public function withAppends(array $appends)
+    public function withAppends(string|array $appends)
     {
         $this->apiResponse->setAppends($appends);
 

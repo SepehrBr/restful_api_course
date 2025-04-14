@@ -44,9 +44,9 @@ class ApiResponse
     }
 
     /**
-     * @param array $appends
+     * @param string|array $appends
      */
-    public function setAppends(array $appends)
+    public function setAppends(string|array $appends)
     {
         $this->appends = $appends;
     }

@@ -10,6 +10,7 @@ use App\Http\Resources\UsersListApiResource;
 use App\Models\User;
 use App\RestAPI\Facades\ApiResponse;
 use App\RestAPI\َApiResponseBuilder;
+use App\Services\UserService;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -19,6 +20,8 @@ use Throwable;
 
 class UserController extends Controller
 {
+    public function __construct(private UserService $userService) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -34,32 +37,28 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'first_name' => ['required', 'string', 'max:255'],
-                'last_name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-                'password' => ['required', 'string', 'min:5', 'confirmed'],
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $data = $validator->validated();
-
-            $data['password'] = bcrypt($data['password']);
-
-            $user = User::create($data);
-
-            return ApiResponse::withMessage('User Created successfully!')->withData($user)->withStatus(201)->build();
-        } catch (Throwable $th) {
-            app()[ExceptionHandler::class]->report($th);
-
-            return ApiResponse::withSuccess(false)->withMessage('An error occurred while creating the user.')->withAppends( [ 'error' => $th->getMessage() ])->withStatus(500)->build();
+        $validator = Validator::make($request->all(), [
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:5', 'confirmed'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
+
+        // send data to UserService to register new user
+        $data = $this->userService->registerUser($validator->validated());
+
+        // return error message
+        if (! $data->ok)
+            return ApiResponse::withSuccess(false)->withMessage('An error occurred while creating the user.')->withAppends($data->data)->withStatus(500)->build();
+
+        // retrun success message
+        return ApiResponse::withMessage('User Created successfully!')->withData($data->data)->withStatus(201)->build();
     }
 
     /**
@@ -75,35 +74,29 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'first_name' => ['sometimes', 'required', 'string', 'max:255'],
-                'last_name' => ['sometimes', 'required', 'string', 'max:255'],
-                'email' => [ 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-                'password' => ['nullable', 'string', 'min:5', 'confirmed'],
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'data' => $request->all(),
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $data = $validator->validated();
-
-            if ($request->has('password')) {
-                $data['password'] = bcrypt($data['password']);
-            }
-
-            $user->update($data);
-
-            return ApiResponse::withMessage('User Updated successfully!')->withData($user)->withStatus(201)->build();
-        } catch (Throwable $th) {
-            app()[ExceptionHandler::class]->report($th);
-
-            return ApiResponse::withSuccess(false)->withMessage('An error occurred while updating the user.')->withAppends( [ 'error' => $th->getMessage() ])->withStatus(500)->build();
+        $validator = Validator::make($request->all(), [
+            'first_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'email' => [ 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:5', 'confirmed'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'data' => $request->all(),
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
+
+        // use UserService to update user
+        $data = $this->userService->updateUser($validator->validated(), $user);
+
+        // return error messages if sth goes wrong as json
+        if (! $data->ok)
+            return ApiResponse::withSuccess(false)->withMessage('An error occurred while updating the user.')->withAppends( $data->data)->withStatus(500)->build();
+
+        // return success responses as json
+        return ApiResponse::withMessage('User Updated successfully!')->withData($data->data)->withStatus(201)->build();
     }
 
     /**
@@ -111,14 +104,14 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        try {
-            $user->delete();
+        // delete user using UserService
+        $data = $this->userService->deleteUser($user);
 
-            return ApiResponse::withMessage('User Deleted successfully!')->withData($user)->withStatus(201)->build();
-        } catch (Throwable $th) {
-            app()[ExceptionHandler::class]->report($th);
+        // return error message as JSON if sth goes wrong
+        if (! $data->ok)
+            return ApiResponse::withSuccess(false)->withMessage('An error occurred while deleting the user.')->withAppends( $data->data)->withStatus(500)->build();
 
-            return ApiResponse::withSuccess(false)->withMessage('An error occurred while deleting the user.')->withAppends( [ 'error' => $th->getMessage() ])->withStatus(500)->build();
-        }
+        // return success message as JSON
+        return ApiResponse::withMessage('User Deleted successfully!')->withData($data->data)->withStatus(201)->build();
     }
 }
