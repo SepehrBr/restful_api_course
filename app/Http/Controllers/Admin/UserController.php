@@ -9,6 +9,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserDetailsApiResource;
 use App\Http\Resources\UsersListApiResource;
+use App\Http\Resources\UsersListApiResourceCollection;
 use App\Models\User;
 use App\RestAPI\Facades\ApiResponse;
 use App\RestAPI\َApiResponseBuilder;
@@ -31,7 +32,7 @@ class UserController extends Controller
     {
         $users = User::query()->paginate();
 
-        return ApiResponse::withData(UsersListApiResource::collection($users)->resource)->build();
+        return ApiResponse::withData(new UsersListApiResourceCollection($users))->build();
     }
 
     /**
