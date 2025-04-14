@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()
             ->count(100)
+            ->has(Article::factory()->count(random_int(1, 10)))
             ->create();
     }
 }

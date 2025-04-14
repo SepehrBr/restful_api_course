@@ -51,5 +51,9 @@ class User extends Authenticatable
         ];
     }
 
-
+    // relations
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
 }
