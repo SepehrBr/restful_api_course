@@ -2,6 +2,7 @@
 
 namespace App\Http\ApiRequests;
 
+use App\Models\User;
 use App\RestAPI\Requests\ApiFormRequest;
 
 class UserStoreApiRequest extends ApiFormRequest
@@ -21,11 +22,6 @@ class UserStoreApiRequest extends ApiFormRequest
      */
     public function rules(): array
     {
-        return [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:5', 'confirmed'],
-        ];
+        return User::rules();
     }
 }
