@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         $users = User::query()->paginate();
 
-        return $this->apiResponse(message: null, data: UsersListApiResource::collection($users));
+        return (new َApiResponseBuilder())->withData(UsersListApiResource::collection($users))->build();
     }
 
     /**
@@ -54,11 +54,11 @@ class UserController extends Controller
 
             $user = User::create($data);
 
-            return $this->apiResponse(message: 'User Created successfully!', data: $user, status: 201);
+            return (new َApiResponseBuilder())->withMessage('User Created successfully!')->withData($user)->withStatus(201)->build();
         } catch (Throwable $th) {
             app()[ExceptionHandler::class]->report($th);
 
-            return $this->apiResponse(false,'An error occurred while creating the user.', appends: [ 'error' => $th->getMessage() ], status: 500);
+            return (new َApiResponseBuilder())->withSuccess(false)->withMessage('An error occurred while creating the user.')->withAppends( [ 'error' => $th->getMessage() ])->withStatus(500)->build();
         }
     }
 
@@ -67,7 +67,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return $this->apiResponse(message: null, data: new UserDetailsApiResource($user));
+        return (new َApiResponseBuilder())->withData(new UserDetailsApiResource($user))->build();
     }
 
     /**
@@ -98,11 +98,11 @@ class UserController extends Controller
 
             $user->update($data);
 
-            return $this->apiResponse(message: 'User Updated successfully!', data:$user, status: 201);
+            return (new َApiResponseBuilder())->withMessage('User Updated successfully!')->withData($user)->withStatus(201)->build();
         } catch (Throwable $th) {
             app()[ExceptionHandler::class]->report($th);
 
-            return $this->apiResponse(false,'An error occurred while updating the user.', appends: [ 'error' => $th->getMessage() ], status: 500);
+            return (new َApiResponseBuilder())->withSuccess(false)->withMessage('An error occurred while updating the user.')->withAppends( [ 'error' => $th->getMessage() ])->withStatus(500)->build();
         }
     }
 
@@ -114,23 +114,11 @@ class UserController extends Controller
         try {
             $user->delete();
 
-            return $this->apiResponse(message: 'User Deleted successfully!', data: $user, status: 201);
+            return (new َApiResponseBuilder())->withMessage('User Deleted successfully!')->withData($user)->withStatus(201)->build();
         } catch (Throwable $th) {
             app()[ExceptionHandler::class]->report($th);
 
-            return $this->apiResponse(false,'An error occurred while deleting the user.', appends: [ 'error' => $th->getMessage() ], status: 500);
+            return (new َApiResponseBuilder())->withSuccess(false)->withMessage('An error occurred while deleting the user.')->withAppends( [ 'error' => $th->getMessage() ])->withStatus(500)->build();
         }
-    }
-
-    private function apiResponse(bool $success = true, ?string $message = null, mixed $data = null, array $appends = [], int $status = 200)
-    {
-        $body = [];
-
-        ! is_null($success) && $body['success'] = $success;
-        ! is_null($message) && $body['message'] = $message;
-        ! is_null($data) && $body['data'] = $data;
-        $body += $appends;
-
-        return response()->json($body, $status);
     }
 }
