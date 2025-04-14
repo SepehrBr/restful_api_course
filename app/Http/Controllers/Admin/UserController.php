@@ -31,7 +31,7 @@ class UserController extends Controller
     {
         $users = User::query()->paginate();
 
-        return ApiResponse::withData(UsersListApiResource::collection($users))->build();
+        return ApiResponse::withData(UsersListApiResource::collection($users)->resource)->build();
     }
 
     /**

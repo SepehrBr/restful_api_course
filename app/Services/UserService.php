@@ -15,16 +15,10 @@ class UserService
      */
     public function registerUser(array $inputs) : ResultService
     {
-        try {
+        return app(TryCatchServiceWrapper::class)(function () use ($inputs) {
             $inputs['password'] = bcrypt($inputs['password']);
-            $user = User::create($inputs);
-
-            return new ResultService(true, $user);
-        } catch (Throwable $th) {
-            app()[ExceptionHandler::class]->report($th);
-
-            return new ResultService(false, $th->getMessage());
-        }
+            return User::create($inputs);
+        });
     }
 
     /**
@@ -35,18 +29,13 @@ class UserService
      */
     public function updateUser(array $inputs, User $user) : ResultService
     {
-        try {
+        return app(TryCatchServiceWrapper::class)(function () use ($inputs, $user) {
             if (request()->has('password')) {
                 $inputs['password'] = bcrypt($inputs['password']);
             }
             $user->update($inputs);
-
-            return new ResultService(true, $user);
-        } catch (Throwable $th) {
-            app()[ExceptionHandler::class]->report($th);
-
-            return new ResultService(false, $th->getMessage());
-        }
+            return $user;
+        });
     }
 
     /**
@@ -56,14 +45,6 @@ class UserService
      */
     public function deleteUser(User $user) : ResultService
     {
-        try {
-            $user->delete();
-
-            return new ResultService(true, $user);
-        } catch (Throwable $th) {
-            app()[ExceptionHandler::class]->report($th);
-
-            return new ResultService(false, $th->getMessage());
-        }
+        return app(TryCatchServiceWrapper::class)(fn () => $user->delete);
     }
 }
