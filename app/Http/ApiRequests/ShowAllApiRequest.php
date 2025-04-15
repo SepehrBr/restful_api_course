@@ -2,18 +2,17 @@
 
 namespace App\Http\ApiRequests;
 
-use App\Models\User;
 use App\RestAPI\Requests\ApiFormRequest;
 use Illuminate\Support\Facades\Gate;
 
-class UserStoreApiRequest extends ApiFormRequest
+class ShowAllApiRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Gate::allows('create_user');
+        return Gate::allows('all_users');
     }
 
     /**
@@ -23,6 +22,8 @@ class UserStoreApiRequest extends ApiFormRequest
      */
     public function rules(): array
     {
-        return User::rules();
+        return [
+
+        ];
     }
 }

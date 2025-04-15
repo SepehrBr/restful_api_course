@@ -14,7 +14,7 @@ class UserUpdateApiRequest extends ApiFormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('test');
+        return Gate::allows(ability: 'update_user');
     }
 
     /**

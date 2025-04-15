@@ -14,6 +14,10 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         Permission::factory()->state([
+            'name' => 'all_users',
+            'display_name' => 'Show All Users'
+        ])->create();
+        Permission::factory()->state([
             'name' => 'create_user',
             'display_name' => 'Create New User'
         ])->create();

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\ApiRequests\ShowAllApiRequest;
+use App\Http\ApiRequests\ShowUserApiRequest;
+use App\Http\ApiRequests\UserDeleteApiRequest;
 use App\Http\ApiRequests\UserStoreApiRequest;
 use App\Http\ApiRequests\UserUpdateApiRequest;
 use App\Http\Controllers\Controller;
@@ -21,14 +24,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Throwable;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Gate;
+
 class UserController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(private UserService $userService) {}
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(ShowAllApiRequest $request)
     {
         $users = User::query()->paginate();
 
@@ -54,7 +61,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show(ShowUserApiRequest $request,User $user)
     {
         return ApiResponse::withData(new UserDetailsApiResource($user))->build();
     }
@@ -78,7 +85,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(UserDeleteApiRequest $request, User $user)
     {
         // delete user using UserService
         $data = $this->userService->deleteUser($user);
