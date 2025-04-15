@@ -20,7 +20,7 @@ class LoginController extends Controller
 
         // login user and generate token
         $user = Auth::user();
-        $token = $request->user()->createToken('API TOKEN')->plainTextToken;
+        $token = $request->user()->createToken($request->header('User-Agent'))->plainTextToken;
 
         // send authed user's fullname and token as json
         return ApiResponse::withMessage("Welcome $user->full_name")->withData($user)->withAppends([ 'token' => $token ])->build();
