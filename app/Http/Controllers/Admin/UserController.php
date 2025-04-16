@@ -8,22 +8,11 @@ use App\Http\ApiRequests\UserDeleteApiRequest;
 use App\Http\ApiRequests\UserStoreApiRequest;
 use App\Http\ApiRequests\UserUpdateApiRequest;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Resources\UserDetailsApiResource;
-use App\Http\Resources\UsersListApiResource;
-use App\Http\Resources\UsersListApiResourceCollection;
+use App\Http\Resources\User\UserDetailsApiResource;
+use App\Http\Resources\User\UsersListApiResourceCollection;
 use App\Models\User;
 use App\RestAPI\Facades\ApiResponse;
-use App\RestAPI\َApiResponseBuilder;
 use App\Services\UserService;
-use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Throwable;
-
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Gate;
 
