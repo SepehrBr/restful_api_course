@@ -13,6 +13,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::apiResources( [
         'users' => UserController::class,
         'roles' => RoleController::class,
+        'permissions' => PermissionController::class,
         'articles' => ArticleController::class,
     ]);
 

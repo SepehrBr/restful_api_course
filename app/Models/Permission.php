@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasRules;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +10,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Permission extends Model
 {
     /** @use HasFactory<\Database\Factories\PermissionFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasRules;
+    
+    protected $guarded = [];
+
+    // validation rules
+    protected static $rules = [
+        'name' => 'required|string|max:255|unique:roles,name',
+        'display_name' => 'required|string|max:500',
+    ];
 
     // relation
     public function roles()
