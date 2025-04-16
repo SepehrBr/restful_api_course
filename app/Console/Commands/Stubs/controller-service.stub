@@ -1,0 +1,28 @@
+<?php
+namespace {{ namespace }};
+
+use {{ modelNamespace }};
+
+class {{ class }}
+{
+    public function register(array $inputs) : ResultService
+    {
+        return app(TryCatchServiceWrapper::class)(function () use ($inputs) {
+            //
+        });
+    }
+
+    public function update(array $inputs, {{ model }} ${{ modelVariable }}) : ResultService
+    {
+        return app(TryCatchServiceWrapper::class)(function () use ($inputs, ${{ modelVariable }}) {
+            //
+        });
+    }
+
+    public function delete({{ model }} ${{ modelVariable }}) : ResultService
+    {
+        return app(TryCatchServiceWrapper::class)(function () use (${{ modelVariable }}) {
+            //
+        });
+    }
+}
